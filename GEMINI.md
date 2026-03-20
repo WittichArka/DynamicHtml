@@ -17,15 +17,20 @@ Créer un template HTML/CSS robuste pour la génération de CV via Puppeteer et 
     - Événements personnalisés (`cv:fit-complete`) pour synchronisation avec Puppeteer.
 - [x] Gestion des débordements (`overflow: hidden`) sur le conteneur principal.
 - [x] Support pour le positionnement absolu d'éléments (ex: photo, logo).
+- [x] **Optimisations v2.0 :**
+    - [x] Passage aux unités relatives (`em`) pour tout le design (icônes, bordures).
+    - [x] Création du composant réactif `.section-pill`.
+    - [x] Distribution verticale équilibrée via `spacer-dynamic` dans les deux colonnes.
+    - [x] Support des calques graphiques (`z-index`) pour images de fond et photos.
+    - [x] Directives d'impression `-webkit-print-color-adjust: exact`.
 
 ## Conventions de nommage adoptées
 - Préfixe `--cv-` pour les variables CSS globales.
 - Auto-ajustement : `--cv-base-*` (valeur actuelle), `--cv-min-*` (limite basse).
 - Événements JS : `cv:fit-complete`, `cv:content-updated`.
-- Variables locales de section : Utilisation de `--section-*` à l'intérieur de `.cv-section`.
-- Classes structurelles : `.cv-container`, `.cv-section`, `.spacer-*`.
+- Classes structurelles : `.cv-container`, `.cv-section`, `.spacer-*`, `.section-pill`.
 
 ## Prochaines étapes
-- [ ] Ajouter des sections de contenu structurées (Expérience, Éducation, Compétences).
-- [ ] Préparer les emplacements pour l'injection de données Puppeteer (Placeholders).
-- [ ] Améliorer le design visuel (typographie, icônes).
+- [ ] Créer une bibliothèque d'icônes SVG standard intégrée au template.
+- [ ] Documenter l'intégration avec le pattern `Result<T>` en C#.
+- [ ] Ajouter des exemples de thèmes de couleurs pré-configurés.

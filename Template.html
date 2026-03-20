@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Template CV</title>
+    <title>Template CV Dynamique</title>
     <style>
         :root {
-            /* ... (variables existantes) ... */
-            --cv-sidebar-width: 25%;
-            --cv-bg-side: #fff9c4;
+            /* --- CONFIGURATION DU DESIGN --- */
+            --cv-sidebar-width: 30%;
+            --cv-bg-side: #f8f9fa;
             --cv-bg-main: #ffffff;
             
-            --cv-font-primary: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            --cv-font-secondary: 'Georgia', serif;
+            --cv-font-primary: 'Segoe UI', Tahoma, sans-serif;
+            --cv-font-secondary: 'Segoe UI', Tahoma, sans-serif;
 
             --cv-sidebar-text-primary: #333333;
-            --cv-sidebar-text-secondary: #555555;
-            --cv-sidebar-accent: #f57f17;
+            --cv-sidebar-text-secondary: #666666;
+            --cv-sidebar-accent: #000000;
 
             --cv-main-text-primary: #2c3e50;
             --cv-main-text-secondary: #7f8c8d;
@@ -26,13 +26,13 @@
             --cv-fit-factor: 1;             /* Piloté par le JS (0 = Min, 1 = Max) */
             
             /* Font Size */
-            --cv-min-font-size: 11px;
-            --cv-max-font-size: 16px;       /* Limite haute pour le remplissage */
+            --cv-min-font-size: 10px;
+            --cv-max-font-size: 16px;
             --cv-font-size: calc(var(--cv-min-font-size) + (var(--cv-max-font-size) - var(--cv-min-font-size)) * var(--cv-fit-factor));
             
             /* Line Height */
             --cv-min-line-height: 1.1;
-            --cv-max-line-height: 1.6;
+            --cv-max-line-height: 1.5;
             --cv-line-height: calc(var(--cv-min-line-height) + (var(--cv-max-line-height) - var(--cv-min-line-height)) * var(--cv-fit-factor));
 
             /* Padding des sections */
@@ -67,12 +67,12 @@
         }
 
         h1, h2, h3 {
-            line-height: 1.1; /* Toujours serré pour les titres */
-            margin-bottom: calc(var(--cv-item-margin) * 0.5);
+            line-height: 1.1;
+            margin-bottom: calc(var(--cv-item-margin) * 0.4);
         }
 
         p {
-            margin-bottom: calc(var(--cv-item-margin) * 0.3);
+            margin-bottom: calc(var(--cv-item-margin) * 0.2);
         }
 
         .page {
@@ -95,6 +95,10 @@
             background-color: var(--cv-bg-side);
             color: var(--cv-sidebar-text-primary);
             padding: var(--cv-padding);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            position: relative;
         }
 
         .main-content {
@@ -102,16 +106,46 @@
             background-color: var(--cv-bg-main);
             color: var(--cv-main-text-primary);
             padding: var(--cv-padding);
+            position: relative;
+            z-index: 5;
         }
+
+        /* --- COMPOSANTS GÉNÉRIQUES RÉACTIFS --- */
 
         .cv-section {
             width: 100%;
-            flex: 1;
+            flex: 0 0 auto;
             display: flex;
             flex-direction: column;
             min-height: 0;
-            padding: 5px 0;
-            break-inside: avoid; /* Évite les coupures disgracieuses */
+            padding: calc(var(--cv-item-margin) * 0.2) 0;
+            break-inside: avoid;
+        }
+
+        .section-pill {
+            background: var(--cv-sidebar-accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: calc(var(--cv-padding) * 0.25) calc(var(--cv-padding) * 0.6);
+            border-radius: 2em;
+            margin-top: var(--cv-item-margin);
+            margin-bottom: calc(var(--cv-item-margin) * 0.5);
+            width: fit-content;
+        }
+
+        .section-pill img, .section-pill .icon {
+            width: 1.6em;
+            height: 1.6em;
+            margin-right: 0.8em;
+            filter: brightness(0) invert(1);
+        }
+
+        .section-pill h2, .section-pill h3 {
+            font-size: 1.2em;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .exp-item {
@@ -119,141 +153,116 @@
             break-inside: avoid;
         }
 
-        /* Icônes et images utilisant em pour mise à l'échelle automatique */
-        .icon {
-            display: inline-block;
-            width: 1.1em;
-            height: 1.1em;
-            vertical-align: middle;
-            margin-right: 0.3em;
-            background-color: currentColor;
-            mask-size: contain;
-            mask-repeat: no-repeat;
-        }
+        .spacer-fixed { flex: 0 0 15px; width: 100%; }
+        .spacer-dynamic { flex: 1; min-height: 5px; }
 
-        .spacer-fixed { flex: 0 0 20px; width: 100%; }
-        .spacer-dynamic { flex: 1; min-height: 5px; } /* Devient un vrai ressort flex */
-
-        .sidebar h2 {
-            color: var(--cv-sidebar-accent);
-            font-family: var(--cv-font-secondary);
-            font-size: 1.2em;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .main-content h2 {
-            color: var(--cv-main-accent);
-            font-family: var(--cv-font-secondary);
-            font-size: 1.5em;
-            border-bottom: 2px solid var(--cv-main-accent);
-        }
-
+        /* --- ÉLÉMENTS FLOTTANTS --- */
         .floating-element {
             position: absolute;
             top: var(--cv-padding);
             right: var(--cv-padding);
-            width: 5em;
-            height: 5em;
-            background-color: rgba(0,0,0,0.05);
+            width: 6em;
+            height: 6em;
+            background-color: #eee;
             border-radius: 50%;
-            z-index: 10;
+            z-index: 100;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8em;
-            border: 1px solid #ddd;
+            border: 2px solid #ddd;
+            overflow: hidden;
+        }
+
+        .floating-element img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- OPTIMISATION PRINT --- */
+        @media print {
+            body { background: white; padding: 0; }
+            .page { box-shadow: none; margin: 0; }
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
 <body>
 
     <div class="page" id="cv-page">
-        <!-- Photo / Logo positionné de manière absolue -->
-        <div class="floating-element">PHOTO</div>
+        <!-- Placeholder pour Photo / Logo -->
+        <div class="floating-element">
+            <span>PHOTO</span>
+        </div>
 
         <div class="cv-container">
             <!-- COLONNE GAUCHE (SIDEBAR) -->
             <aside class="sidebar">
                 <!-- Section Contact -->
-                <section class="cv-section" id="section-contact" style="flex: 0 0 auto;">
-                    <h2>Contact</h2>
-                    <p><span class="icon"></span> {{Adresse}}</p>
-                    <p><span class="icon"></span> {{Telephone}}</p>
-                    <p><span class="icon"></span> {{Email}}</p>
-                    <p><span class="icon"></span> {{Linkedin}}</p>
+                <section class="cv-section" id="section-contact">
+                    <h3 style="border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px;">Contact</h3>
+                    <p>{{Adresse}}</p>
+                    <p>{{Telephone}}</p>
+                    <p>{{Email}}</p>
                 </section>
 
                 <div class="spacer-dynamic"></div>
 
                 <!-- Section Compétences -->
                 <section class="cv-section" id="section-skills">
-                    <h2>Compétences</h2>
+                    <h3>Compétences</h3>
                     <p>• {{Competence1}}</p>
                     <p>• {{Competence2}}</p>
                     <p>• {{Competence3}}</p>
-                    <p>• {{Competence4}}</p>
                 </section>
 
                 <div class="spacer-dynamic"></div>
 
                 <!-- Section Langues -->
-                <section class="cv-section" id="section-languages" style="flex: 0 0 auto;">
-                    <h2>Langues</h2>
+                <section class="cv-section" id="section-languages">
+                    <h3>Langues</h3>
                     <p><b>Français :</b> Maternel</p>
                     <p><b>Anglais :</b> {{NiveauAnglais}}</p>
                 </section>
 
-                <div class="spacer-dynamic"></div>
-
-                <!-- Section Centres d'intérêt -->
-                <section class="cv-section" id="section-interests" style="flex: 0 0 auto;">
-                    <h2>Intérêts</h2>
-                    <p>{{Interets}}</p>
-                </section>
+                <div class="spacer-fixed"></div>
             </aside>
 
             <!-- COLONNE DROITE (MAIN CONTENT) -->
             <main class="main-content">
                 <!-- Header / Profil -->
-                <section class="cv-section" id="section-profile" style="flex: 0 0 auto;">
+                <section class="cv-section" id="section-header">
                     <h1 style="font-size: 2.5em; color: var(--cv-main-accent);">{{NomPrenom}}</h1>
-                    <h3 style="color: var(--cv-main-text-secondary);">{{TitrePoste}}</h3>
-                    <p>{{ResumeProfil}}</p>
+                    <h3 style="color: var(--cv-main-text-secondary); font-weight: normal;">{{TitrePoste}}</h3>
+                    <p style="margin-top: calc(var(--cv-item-margin) * 0.5);">{{ResumeProfil}}</p>
                 </section>
 
-                <div class="spacer-fixed"></div>
-
-                <!-- Section Expériences Professionnelles -->
+                <!-- Section Expériences -->
                 <section class="cv-section" id="section-experience">
-                    <h2>Expériences Professionnelles</h2>
+                    <div class="section-pill">
+                        <h3>Expériences</h3>
+                    </div>
                     
                     <div class="exp-item">
-                        <div style="display: flex; justify-content: space-between;">
-                            <b>{{Poste1}}</b>
+                        <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                            <span>{{Poste1}}</span>
                             <span>{{Date1}}</span>
                         </div>
-                        <i style="font-size: 0.9em;">{{Entreprise1}}</i>
+                        <div style="font-style: italic; color: var(--cv-main-text-secondary); font-size: 0.9em;">{{Entreprise1}}</div>
                         <p>{{Description1}}</p>
-                    </div>
-
-                    <div class="exp-item">
-                        <div style="display: flex; justify-content: space-between;">
-                            <b>{{Poste2}}</b>
-                            <span>{{Date2}}</span>
-                        </div>
-                        <i style="font-size: 0.9em;">{{Entreprise2}}</i>
-                        <p>{{Description2}}</p>
                     </div>
                 </section>
 
                 <div class="spacer-dynamic"></div>
 
                 <!-- Section Formation -->
-                <section class="cv-section" id="section-education" style="flex: 0 0 auto;">
-                    <h2>Formation</h2>
+                <section class="cv-section" id="section-education">
+                    <div class="section-pill">
+                        <h3>Formation</h3>
+                    </div>
                     <div class="exp-item">
-                        <div style="display: flex; justify-content: space-between;">
-                            <b>{{Diplome1}}</b>
+                        <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                            <span>{{Diplome1}}</span>
                             <span>{{Annee1}}</span>
                         </div>
                         <p>{{Ecole1}}</p>
@@ -269,7 +278,7 @@
          */
         const CV_App = {
             config: {
-                precision: 0.001, // Précision du facteur (0.1%)
+                precision: 0.001,
                 maxIterations: 12
             },
 
@@ -288,29 +297,20 @@
                 let high = 1;
                 let bestFactor = 0;
 
-                // Recherche Binaire pour trouver le facteur le plus grand qui ne déborde pas
                 for (let i = 0; i < this.config.maxIterations; i++) {
                     let mid = (low + high) / 2;
                     this.setFitFactor(mid);
 
                     if (this.checkOverflow()) {
-                        high = mid; // Trop grand, on réduit
+                        high = mid;
                     } else {
-                        bestFactor = mid; // Ça passe, on tente plus grand
+                        bestFactor = mid;
                         low = mid;
                     }
                 }
 
-                // Appliquer le meilleur résultat
                 this.setFitFactor(bestFactor);
-                
                 console.timeEnd("AutoFit");
-                console.log(`Ajustement terminé. Facteur optimal : ${bestFactor.toFixed(3)}`);
-                
-                if (bestFactor < 0.01) {
-                    console.warn("Contenu trop large même au minimum.");
-                    document.dispatchEvent(new CustomEvent('cv:limit-reached'));
-                }
                 
                 document.dispatchEvent(new CustomEvent('cv:fit-complete', { detail: { factor: bestFactor } }));
             }
@@ -319,7 +319,5 @@
         window.addEventListener('load', () => CV_App.adjustContent());
         document.addEventListener('cv:content-updated', () => CV_App.adjustContent());
     </script>
-</body>
-
 </body>
 </html>

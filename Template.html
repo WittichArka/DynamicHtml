@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template CV</title>
+    <style>
+        :root {
+            /* ... (variables existantes) ... */
+            --cv-sidebar-width: 25%;
+            --cv-bg-side: #fff9c4;
+            --cv-bg-main: #ffffff;
+            
+            --cv-font-primary: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --cv-font-secondary: 'Georgia', serif;
+
+            --cv-sidebar-text-primary: #333333;
+            --cv-sidebar-text-secondary: #555555;
+            --cv-sidebar-accent: #f57f17;
+
+            --cv-main-text-primary: #2c3e50;
+            --cv-main-text-secondary: #7f8c8d;
+            --cv-main-accent: #2980b9;
+
+            /* --- SYSTÈME D'AUTO-AJUSTEMENT (RECHERCHE BINAIRE) --- */
+            --cv-fit-factor: 1;             /* Piloté par le JS (0 = Min, 1 = Max) */
+            
+            /* Font Size */
+            --cv-min-font-size: 11px;
+            --cv-max-font-size: 16px;       /* Limite haute pour le remplissage */
+            --cv-font-size: calc(var(--cv-min-font-size) + (var(--cv-max-font-size) - var(--cv-min-font-size)) * var(--cv-fit-factor));
+            
+            /* Line Height */
+            --cv-min-line-height: 1.1;
+            --cv-max-line-height: 1.6;
+            --cv-line-height: calc(var(--cv-min-line-height) + (var(--cv-max-line-height) - var(--cv-min-line-height)) * var(--cv-fit-factor));
+
+            /* Padding des sections */
+            --cv-min-padding: 10px;
+            --cv-max-padding: 30px;
+            --cv-padding: calc(var(--cv-min-padding) + (var(--cv-max-padding) - var(--cv-min-padding)) * var(--cv-fit-factor));
+
+            /* Marges entre items */
+            --cv-min-item-margin: 5px;
+            --cv-max-item-margin: 20px;
+            --cv-item-margin: calc(var(--cv-min-item-margin) + (var(--cv-max-item-margin) - var(--cv-min-item-margin)) * var(--cv-fit-factor));
+
+            /* Dimensions fixes A4 */
+            --cv-page-width: 210mm;
+            --cv-page-height: 297mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f0f0f0;
+            font-family: var(--cv-font-primary);
+            font-size: var(--cv-font-size);
+            line-height: var(--cv-line-height);
+            display: flex;
+            justify-content: center;
+            padding: 20mm 0;
+        }
+
+        h1, h2, h3 {
+            line-height: 1.1; /* Toujours serré pour les titres */
+            margin-bottom: calc(var(--cv-item-margin) * 0.5);
+        }
+
+        p {
+            margin-bottom: calc(var(--cv-item-margin) * 0.3);
+        }
+
+        .page {
+            width: var(--cv-page-width);
+            height: var(--cv-page-height);
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .cv-container {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+
+        .sidebar {
+            flex: 0 0 var(--cv-sidebar-width);
+            background-color: var(--cv-bg-side);
+            color: var(--cv-sidebar-text-primary);
+            padding: var(--cv-padding);
+        }
+
+        .main-content {
+            flex: 1;
+            background-color: var(--cv-bg-main);
+            color: var(--cv-main-text-primary);
+            padding: var(--cv-padding);
+        }
+
+        .cv-section {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            padding: 5px 0;
+            break-inside: avoid; /* Évite les coupures disgracieuses */
+        }
+
+        .exp-item {
+            margin-bottom: var(--cv-item-margin);
+            break-inside: avoid;
+        }
+
+        /* Icônes et images utilisant em pour mise à l'échelle automatique */
+        .icon {
+            display: inline-block;
+            width: 1.1em;
+            height: 1.1em;
+            vertical-align: middle;
+            margin-right: 0.3em;
+            background-color: currentColor;
+            mask-size: contain;
+            mask-repeat: no-repeat;
+        }
+
+        .spacer-fixed { flex: 0 0 20px; width: 100%; }
+        .spacer-dynamic { flex: 1; min-height: 5px; } /* Devient un vrai ressort flex */
+
+        .sidebar h2 {
+            color: var(--cv-sidebar-accent);
+            font-family: var(--cv-font-secondary);
+            font-size: 1.2em;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .main-content h2 {
+            color: var(--cv-main-accent);
+            font-family: var(--cv-font-secondary);
+            font-size: 1.5em;
+            border-bottom: 2px solid var(--cv-main-accent);
+        }
+
+        .floating-element {
+            position: absolute;
+            top: var(--cv-padding);
+            right: var(--cv-padding);
+            width: 5em;
+            height: 5em;
+            background-color: rgba(0,0,0,0.05);
+            border-radius: 50%;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page" id="cv-page">
+        <!-- Photo / Logo positionné de manière absolue -->
+        <div class="floating-element">PHOTO</div>
+
+        <div class="cv-container">
+            <!-- COLONNE GAUCHE (SIDEBAR) -->
+            <aside class="sidebar">
+                <!-- Section Contact -->
+                <section class="cv-section" id="section-contact" style="flex: 0 0 auto;">
+                    <h2>Contact</h2>
+                    <p><span class="icon"></span> {{Adresse}}</p>
+                    <p><span class="icon"></span> {{Telephone}}</p>
+                    <p><span class="icon"></span> {{Email}}</p>
+                    <p><span class="icon"></span> {{Linkedin}}</p>
+                </section>
+
+                <div class="spacer-dynamic"></div>
+
+                <!-- Section Compétences -->
+                <section class="cv-section" id="section-skills">
+                    <h2>Compétences</h2>
+                    <p>• {{Competence1}}</p>
+                    <p>• {{Competence2}}</p>
+                    <p>• {{Competence3}}</p>
+                    <p>• {{Competence4}}</p>
+                </section>
+
+                <div class="spacer-dynamic"></div>
+
+                <!-- Section Langues -->
+                <section class="cv-section" id="section-languages" style="flex: 0 0 auto;">
+                    <h2>Langues</h2>
+                    <p><b>Français :</b> Maternel</p>
+                    <p><b>Anglais :</b> {{NiveauAnglais}}</p>
+                </section>
+
+                <div class="spacer-dynamic"></div>
+
+                <!-- Section Centres d'intérêt -->
+                <section class="cv-section" id="section-interests" style="flex: 0 0 auto;">
+                    <h2>Intérêts</h2>
+                    <p>{{Interets}}</p>
+                </section>
+            </aside>
+
+            <!-- COLONNE DROITE (MAIN CONTENT) -->
+            <main class="main-content">
+                <!-- Header / Profil -->
+                <section class="cv-section" id="section-profile" style="flex: 0 0 auto;">
+                    <h1 style="font-size: 2.5em; color: var(--cv-main-accent);">{{NomPrenom}}</h1>
+                    <h3 style="color: var(--cv-main-text-secondary);">{{TitrePoste}}</h3>
+                    <p>{{ResumeProfil}}</p>
+                </section>
+
+                <div class="spacer-fixed"></div>
+
+                <!-- Section Expériences Professionnelles -->
+                <section class="cv-section" id="section-experience">
+                    <h2>Expériences Professionnelles</h2>
+                    
+                    <div class="exp-item">
+                        <div style="display: flex; justify-content: space-between;">
+                            <b>{{Poste1}}</b>
+                            <span>{{Date1}}</span>
+                        </div>
+                        <i style="font-size: 0.9em;">{{Entreprise1}}</i>
+                        <p>{{Description1}}</p>
+                    </div>
+
+                    <div class="exp-item">
+                        <div style="display: flex; justify-content: space-between;">
+                            <b>{{Poste2}}</b>
+                            <span>{{Date2}}</span>
+                        </div>
+                        <i style="font-size: 0.9em;">{{Entreprise2}}</i>
+                        <p>{{Description2}}</p>
+                    </div>
+                </section>
+
+                <div class="spacer-dynamic"></div>
+
+                <!-- Section Formation -->
+                <section class="cv-section" id="section-education" style="flex: 0 0 auto;">
+                    <h2>Formation</h2>
+                    <div class="exp-item">
+                        <div style="display: flex; justify-content: space-between;">
+                            <b>{{Diplome1}}</b>
+                            <span>{{Annee1}}</span>
+                        </div>
+                        <p>{{Ecole1}}</p>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Logique d'ajustement automatique par Recherche Binaire
+         */
+        const CV_App = {
+            config: {
+                precision: 0.001, // Précision du facteur (0.1%)
+                maxIterations: 12
+            },
+
+            setFitFactor: (value) => {
+                document.documentElement.style.setProperty('--cv-fit-factor', value);
+            },
+
+            checkOverflow: () => {
+                const page = document.getElementById('cv-page');
+                return (page.scrollHeight - page.offsetHeight) > 0.5;
+            },
+
+            adjustContent: function() {
+                console.time("AutoFit");
+                let low = 0;
+                let high = 1;
+                let bestFactor = 0;
+
+                // Recherche Binaire pour trouver le facteur le plus grand qui ne déborde pas
+                for (let i = 0; i < this.config.maxIterations; i++) {
+                    let mid = (low + high) / 2;
+                    this.setFitFactor(mid);
+
+                    if (this.checkOverflow()) {
+                        high = mid; // Trop grand, on réduit
+                    } else {
+                        bestFactor = mid; // Ça passe, on tente plus grand
+                        low = mid;
+                    }
+                }
+
+                // Appliquer le meilleur résultat
+                this.setFitFactor(bestFactor);
+                
+                console.timeEnd("AutoFit");
+                console.log(`Ajustement terminé. Facteur optimal : ${bestFactor.toFixed(3)}`);
+                
+                if (bestFactor < 0.01) {
+                    console.warn("Contenu trop large même au minimum.");
+                    document.dispatchEvent(new CustomEvent('cv:limit-reached'));
+                }
+                
+                document.dispatchEvent(new CustomEvent('cv:fit-complete', { detail: { factor: bestFactor } }));
+            }
+        };
+
+        window.addEventListener('load', () => CV_App.adjustContent());
+        document.addEventListener('cv:content-updated', () => CV_App.adjustContent());
+    </script>
+</body>
+
+</body>
+</html>
